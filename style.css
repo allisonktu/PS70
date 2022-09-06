@@ -1,11 +1,28 @@
+
 body {
+    background-color: e0fbfc;
     font-family: 20px Georgia, serif;
     line-height: 1.8;
     color: black;
     padding-top: 0px !important;
   }
 
-p {font-size: 16px;}
+p {font-size: 16px;
+  color: #293241;
+  font-family: "Gill Sans", sans-serif;
+}
+
+h3{
+  color: #3d5a80;
+  font-family: "Gill Sans", sans-serif;
+}
+
+h4{
+  color: #3d5a80;
+  font-family: "Gill Sans", sans-serif;
+}
+
+
 .margin {margin-bottom: 15px;}
 
 .container-fluid {

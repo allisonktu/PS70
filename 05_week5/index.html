@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<title>PS70: Intro to Digital Fabrication </title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="../style.css" rel="stylesheet"> 
+
+<nav class="navbar navbar-expand-sm navbar-light" style="background-color: #ee6c4d">
+  <div style="align-items: left; justify-content:left;" class="container-fluid">
+    <h3 class="nav-title" style="color: #ffffff"> PS70: Intro to Digital Fabrication</h3>
+    <div class="navbar-nav">
+      <h4><a class="nav-link" style="color: #ffffff" href="../index.html">Home</a></h4>
+      <h4><a class="nav-link" style="color: #ffffff" href="../about.html">About</a></h4>
+    </div>
+  </div>
+</nav>
+
+<body>
+
+
+<xmp style="display:none;">
+<br> 
+
+### Week 5: Microcontroller programming
+
+This week was focused on microcontroller programming. For my project, I decided to work on an element I might use for my final project: lights that respond to ambient sound. In my final project, I'm hoping this will take the form of lights that respond to the volume or frequency of the music being played by the music box.
+
+I don't really have a preference for whether the lights are controlled by volume or frequency, so I decided to move forward with volume because it's much simpler than figuring out fast Fourier transforms, which I don't quite understand. I began by setting up the circuit, then moved on to the code. First, I set up the Arduino Uno microcontroller by connecting the ground pin to the ground rail on my breadboard and the 3.3 V pin to my power rail. Next, I soldered a set of pins to one of the lab's microphones, the Adafruit MEMS Microphone Breakout SPW2430 (I got confused and soldered the pins on upside-down, oops. It still works fine so I'm not going to bother re-soldering it). The rest of the circuit was pretty simple. I connected the the microphone as follows:
+<ul>
+  <li>Ground pin to ground</li>
+  <li>Vin to 3.3 volts</li>
+  <li>DC pin to analog input pin A0</li>
+</ul>
+
+Then, I put all four of my LEDs in the circuit. Now that we've learned how to create classes, it's very easy to change the number of LEDs, so I just chose 4 as an arbitrary number. I connected the anode of each LED to a different output pin of the Arduino Uno and the cathode of each LED to a 10k resistor, which then connected to ground. In this setup, the resistors are functioning as pulldown resistors to avoid any ambiguous impact of random forces on the LEDs. Here's the final circuit schematic:
+
+<img src="./CircuitSchematic.JPG" alt="Drawn-out circuit schematic" width="300"/>
+
+And here's what it looked like in real life:
+<img src="./Circuit.JPG" alt="My circuit in its breadboard" width="300"/>
+
+Now came the more challenging bit, the code. I began by using the course site's [tutorial](https://nathanmelenbrink.github.io/ps70/06_input/index.html), which gave more information about MEMS microphones and example code for how to create a graph of the amplitude (which indicates volume) of the sounds the mic is picking up. This code was so helpful and I used it as a jumping-off point for my project by removing the code that was used to create the plot: I didn't need a plot of amplitude for my purposes. Next, I created a class for the LEDs, with inputs of the LED pin number, the amplitude threshold at which the LED should light up, and the state of the LED (low or high, corresponding to on or off). Finally, I wrote an if statement to turn the LED on if the amplitude was above the threshold and turn it off if the amplitude was below the threshold. Here's the final code.
+
+<pre><code class="language-arduino">
+<pre>
+<font color="#00979c">class</font> <font color="#000000">Bright</font>
+<font color="#000000">{</font>
+ &nbsp;<font color="#00979c">unsigned</font> <font color="#00979c">int</font> <font color="#000000">ledPin</font><font color="#000000">;</font> <font color="#434f54">&#47;&#47; Number of LED pin</font>
+ &nbsp;<font color="#00979c">unsigned</font> <font color="#00979c">int</font> <font color="#000000">threshold</font><font color="#000000">;</font> <font color="#434f54">&#47;&#47; Amplitude threshold at which this LED should light up</font>
+ &nbsp;<font color="#00979c">int</font> <font color="#000000">ledState</font><font color="#000000">;</font> <font color="#434f54">&#47;&#47; Used to set the LED</font>
+
+ &nbsp;<font color="#00979c">public</font><font color="#434f54">:</font> <font color="#434f54">&#47;&#47; Constructor to initiatlize member variables and state</font>
+ &nbsp;<font color="#000000">Bright</font><font color="#000000">(</font><font color="#00979c">int</font> <font color="#000000">pin</font><font color="#434f54">,</font> <font color="#00979c">int</font> <font color="#000000">thresh</font><font color="#000000">)</font>
+ &nbsp;<font color="#000000">{</font>
+ &nbsp;&nbsp;&nbsp;<font color="#000000">ledPin</font> <font color="#434f54">=</font> <font color="#000000">pin</font><font color="#000000">;</font>
+ &nbsp;&nbsp;&nbsp;<font color="#d35400">pinMode</font><font color="#000000">(</font><font color="#000000">ledPin</font><font color="#434f54">,</font> <font color="#00979c">OUTPUT</font><font color="#000000">)</font><font color="#000000">;</font>
+ &nbsp;&nbsp;&nbsp;<font color="#000000">threshold</font> <font color="#434f54">=</font> <font color="#000000">thresh</font><font color="#000000">;</font>
+
+ &nbsp;&nbsp;&nbsp;<font color="#000000">ledState</font> <font color="#434f54">=</font> <font color="#00979c">LOW</font><font color="#000000">;</font>
+ &nbsp;<font color="#000000">}</font>
+ 
+ <font color="#00979c">void</font> <font color="#000000">Update</font><font color="#000000">(</font><font color="#00979c">int</font> <font color="#000000">peakToPeak</font><font color="#000000">)</font>
+ <font color="#000000">{</font>
+ &nbsp;<font color="#5e6d03">if</font><font color="#000000">(</font><font color="#000000">peakToPeak</font> <font color="#434f54">&lt;=</font> <font color="#000000">threshold</font><font color="#000000">)</font>
+ &nbsp;<font color="#000000">{</font>
+ &nbsp;&nbsp;&nbsp;<font color="#000000">ledState</font> <font color="#434f54">=</font> <font color="#00979c">LOW</font><font color="#000000">;</font> <font color="#434f54">&#47;&#47; If the amplitude is below threshold, turn the LED off</font>
+ &nbsp;&nbsp;&nbsp;<font color="#d35400">digitalWrite</font><font color="#000000">(</font><font color="#000000">ledPin</font><font color="#434f54">,</font> <font color="#000000">ledState</font><font color="#000000">)</font><font color="#000000">;</font> <font color="#434f54">&#47;&#47; Update the LED</font>
+ &nbsp;<font color="#000000">}</font>
+ &nbsp;<font color="#5e6d03">else</font> <font color="#5e6d03">if</font><font color="#000000">(</font><font color="#000000">peakToPeak</font> <font color="#434f54">&gt;</font> <font color="#000000">threshold</font><font color="#000000">)</font>
+ &nbsp;<font color="#000000">{</font>
+ &nbsp;&nbsp;&nbsp;<font color="#000000">ledState</font> <font color="#434f54">=</font> <font color="#00979c">HIGH</font><font color="#000000">;</font> <font color="#434f54">&#47;&#47;If the amplitude is above threshold, turn the LED on</font>
+ &nbsp;&nbsp;&nbsp;<font color="#d35400">digitalWrite</font><font color="#000000">(</font><font color="#000000">ledPin</font><font color="#434f54">,</font> <font color="#000000">ledState</font><font color="#000000">)</font><font color="#000000">;</font> <font color="#434f54">&#47;&#47; Update the LED</font>
+ &nbsp;<font color="#000000">}</font>
+ <font color="#000000">}</font>
+<font color="#000000">}</font><font color="#000000">;</font>
+ <font color="#00979c">const</font> <font color="#00979c">int</font> <font color="#000000">sampleWindow</font> <font color="#434f54">=</font> <font color="#000000">50</font><font color="#000000">;</font> <font color="#434f54">&#47;&#47; Sample window width in mS (50 mS = 20Hz)</font>
+ <font color="#00979c">unsigned</font> <font color="#00979c">int</font> <font color="#000000">sample</font><font color="#000000">;</font>
+
+<font color="#434f54">&#47;&#47; Calling the Bright class to make the 4 LEDs</font>
+<font color="#000000">Bright</font> <font color="#000000">led1</font><font color="#000000">(</font><font color="#000000">2</font><font color="#434f54">,</font> <font color="#000000">3</font><font color="#000000">)</font><font color="#000000">;</font>
+<font color="#000000">Bright</font> <font color="#000000">led2</font><font color="#000000">(</font><font color="#000000">3</font><font color="#434f54">,</font> <font color="#000000">5</font><font color="#000000">)</font><font color="#000000">;</font>
+<font color="#000000">Bright</font> <font color="#000000">led3</font><font color="#000000">(</font><font color="#000000">4</font><font color="#434f54">,</font> <font color="#000000">15</font><font color="#000000">)</font><font color="#000000">;</font>
+<font color="#000000">Bright</font> <font color="#000000">led4</font><font color="#000000">(</font><font color="#000000">5</font><font color="#434f54">,</font> <font color="#000000">50</font><font color="#000000">)</font><font color="#000000">;</font>
+
+ <font color="#00979c">void</font> <font color="#5e6d03">setup</font><font color="#000000">(</font><font color="#000000">)</font> 
+ <font color="#000000">{</font>
+ <font color="#000000">}</font>
+
+ <font color="#00979c">void</font> <font color="#5e6d03">loop</font><font color="#000000">(</font><font color="#000000">)</font> 
+ <font color="#000000">{</font>
+ &nbsp;&nbsp;&nbsp;<font color="#00979c">unsigned</font> <font color="#00979c">long</font> <font color="#000000">startMillis</font><font color="#434f54">=</font> <font color="#d35400">millis</font><font color="#000000">(</font><font color="#000000">)</font><font color="#000000">;</font> &nbsp;<font color="#434f54">&#47;&#47; Start of sample window</font>
+ &nbsp;&nbsp;&nbsp;<font color="#00979c">unsigned</font> <font color="#00979c">int</font> <font color="#000000">peakToPeak</font> <font color="#434f54">=</font> <font color="#000000">0</font><font color="#000000">;</font> &nbsp;&nbsp;<font color="#434f54">&#47;&#47; peak-to-peak level</font>
+
+ &nbsp;&nbsp;&nbsp;<font color="#00979c">unsigned</font> <font color="#00979c">int</font> <font color="#000000">signalMax</font> <font color="#434f54">=</font> <font color="#000000">0</font><font color="#000000">;</font>
+ &nbsp;&nbsp;&nbsp;<font color="#00979c">unsigned</font> <font color="#00979c">int</font> <font color="#000000">signalMin</font> <font color="#434f54">=</font> <font color="#000000">1024</font><font color="#000000">;</font>
+
+ &nbsp;&nbsp;&nbsp;<font color="#434f54">&#47;&#47; collect data for 50 mS</font>
+ &nbsp;&nbsp;&nbsp;<font color="#5e6d03">while</font> <font color="#000000">(</font><font color="#d35400">millis</font><font color="#000000">(</font><font color="#000000">)</font> <font color="#434f54">-</font> <font color="#000000">startMillis</font> <font color="#434f54">&lt;</font> <font color="#000000">sampleWindow</font><font color="#000000">)</font>
+ &nbsp;&nbsp;&nbsp;<font color="#000000">{</font>
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#000000">sample</font> <font color="#434f54">=</font> <font color="#d35400">analogRead</font><font color="#000000">(</font><font color="#000000">0</font><font color="#000000">)</font><font color="#000000">;</font> &nbsp;&nbsp;<font color="#434f54">&#47;&#47;reading DC pin from pin A0</font>
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#5e6d03">if</font> <font color="#000000">(</font><font color="#000000">sample</font> <font color="#434f54">&lt;</font> <font color="#000000">1024</font><font color="#000000">)</font> &nbsp;<font color="#434f54">&#47;&#47; toss out spurious readings</font>
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#000000">{</font>
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#5e6d03">if</font> <font color="#000000">(</font><font color="#000000">sample</font> <font color="#434f54">&gt;</font> <font color="#000000">signalMax</font><font color="#000000">)</font>
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#000000">{</font>
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#000000">signalMax</font> <font color="#434f54">=</font> <font color="#000000">sample</font><font color="#000000">;</font> &nbsp;<font color="#434f54">&#47;&#47; save just the max levels</font>
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#000000">}</font>
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#5e6d03">else</font> <font color="#5e6d03">if</font> <font color="#000000">(</font><font color="#000000">sample</font> <font color="#434f54">&lt;</font> <font color="#000000">signalMin</font><font color="#000000">)</font>
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#000000">{</font>
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#000000">signalMin</font> <font color="#434f54">=</font> <font color="#000000">sample</font><font color="#000000">;</font> &nbsp;<font color="#434f54">&#47;&#47; save just the min levels</font>
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#000000">}</font>
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#000000">}</font>
+ &nbsp;&nbsp;&nbsp;<font color="#000000">}</font>
+ &nbsp;&nbsp;&nbsp;<font color="#000000">peakToPeak</font> <font color="#434f54">=</font> <font color="#000000">signalMax</font> <font color="#434f54">-</font> <font color="#000000">signalMin</font><font color="#000000">;</font> &nbsp;<font color="#434f54">&#47;&#47; max - min = peak-peak amplitude</font>
+
+ &nbsp;&nbsp;&nbsp;<font color="#434f54">&#47;&#47;Call Update(peakToPeak) for each instance of the Bright class</font>
+ &nbsp;&nbsp;&nbsp;<font color="#000000">led1</font><font color="#434f54">.</font><font color="#000000">Update</font><font color="#000000">(</font><font color="#000000">peakToPeak</font><font color="#000000">)</font><font color="#000000">;</font>
+ &nbsp;&nbsp;&nbsp;<font color="#000000">led2</font><font color="#434f54">.</font><font color="#000000">Update</font><font color="#000000">(</font><font color="#000000">peakToPeak</font><font color="#000000">)</font><font color="#000000">;</font>
+ &nbsp;&nbsp;&nbsp;<font color="#000000">led3</font><font color="#434f54">.</font><font color="#000000">Update</font><font color="#000000">(</font><font color="#000000">peakToPeak</font><font color="#000000">)</font><font color="#000000">;</font>
+ &nbsp;&nbsp;&nbsp;<font color="#000000">led4</font><font color="#434f54">.</font><font color="#000000">Update</font><font color="#000000">(</font><font color="#000000">peakToPeak</font><font color="#000000">)</font><font color="#000000">;</font>
+ <font color="#000000">}</font>
+
+</pre>
+</code></pre> 
+
+Next, I made a quick cardboard housing for the circuit so you don't have to look at all the electronic components. I measured the dimensions of the circuit, and laser cut cardboard pieces that I hot glued together into a box with no bottom, such that I can just rest it on top of the circuit. I laser cut four holes, one for each LED, into the top of the box. I also laser cut a hole in the side for the Arduino cord. I removed each LED from the breadboard and connected it with a bunch of clips back into the circuit. This results in a big wire tangle, but preserves the rapid editability of the circuit, as opposed to soldering. This is what the box looked like with the circuit tucked inside:
+
+<img src="./CircuitBox.JPG" alt="Cardboard box with 4 LEDs sticking out" width="300"/>
+
+Now that the microphone was sitting in the cardboard, I had to change the thresholds of each LED to make it respond the way I wanted. I wanted all four LEDs to light up at a very loud sound, like a clap, and only one or two to light up at a normal talking volume. Here's the final result!
+
+<iframe width="560" height="315" src="./WorkingCircuit.JPG" frameborder="0" allowfullscreen></iframe>
+
+</xmp>
+</body>
+
+<script src="../strapdown.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" ></script>
+
+</html>

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<title>PS70: Intro to Digital Fabrication </title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="../style.css" rel="stylesheet"> 
+
+<nav class="navbar navbar-expand-sm navbar-light" style="background-color: #ee6c4d">
+  <div style="align-items: left; justify-content:left;" class="container-fluid">
+    <h3 class="nav-title" style="color: #ffffff"> PS70: Intro to Digital Fabrication</h3>
+    <div class="navbar-nav">
+      <h4><a class="nav-link" style="color: #ffffff" href="../index.html">Home</a></h4>
+      <h4><a class="nav-link" style="color: #ffffff" href="../about.html">About</a></h4>
+    </div>
+  </div>
+</nav>
+
+<body>
+
+
+<xmp style="display:none;">
+<br> 
+
+### Week 9: Radio, WiFi, and Bluetooth
+
+This week's project was program microcontrollers to have them talk to each other/the internet. Nina, Ana, and I teamed up to work on a cat button: a cat with a button that, when you press it, it sends a random cat fact to another microcontroller via bluetooth. The receiving microcontroller will then display the cat fact on an LCD display. The project had a bunch of components, which we split among our group members:
+
+<ul>
+  <li>Modeling and printing the cat (Ana)</li>
+  <li>Figuring out Bluetooth to send signals between microcontrollers (Nina and Ana)</li>
+  <li>Making the button circuit (me)</li>
+  <li>Writing the button press code (me)</li>
+  <li>Wiring up the LCD screen and writing the code (me)</li>
+  <li>Writing the code to get a random cat fact from the Cat Facts API (me)</li>
+  <li>Putting it all together! (everyone)</li>
+</ul> 
+
+Ana found a model of a cat she liked online, then modified it to make sure it was hollow: our idea was to have the cat holding the button in its paws, then we could run the wires down through the hollow cat. She then 3D printed it.
+
+I started working on wiring up the LCD screen (the Adafruit 1.14" 240x135 Color TFT Breakout LCD Display). This [tutorial and example code](https://learn.adafruit.com/adafruit-1-14-240x135-color-tft-breakout/arduino-wiring-test) from Adafruit was very helpful. Initially, the screen wasn't working when I used the example code, and it turned out my soldering job wasn't great. Ibrahim helped me fix it, but we did notice that the soldering iron was being a bit finicky (we're not sure why). Once I had the screen working with my Arduino, I wanted to shift it to the ESP-32. I figured out which pins on my ESP-32 were the SCK (SPI clock) and MOSI pins by using [this](https://forum.fritzing.org/t/esp32s-hiletgo-dev-boad-with-pinout-template/5357) pinout reference. After switching those around, the code still wouldn't work and I got stuck... I'm still stuck after consulting Nathan for a bit and will continue to work on this.
+
+I moved on and wrote the code to display the string the API will return. You can find it in the code snippet at the end! This was fairly straightforward, as Adafruit has a good information [source](https://learn.adafruit.com/adafruit-gfx-graphics-library) on the graphics library.
+
+Next came wiring the button circuit and writing that code, which was very straightforward. I hooked up the button to ground through a 10k pulldown resistor and connected the other end to a pin of the ESP-32 and power. Then, I wrote some quick code for the microcontroller to take an action (send the Bluetooth signal) once the button was pressed, and stop sending the signal once the button was released. Once Nina and Ana finish the Bluetooth code, I'll add that into the button press code.
+
+<img src="./CircuitDiagram.jpeg" alt="Diagram of button press circuit" width="350"/>
+
+After that, I needed to investigate the cat facts API and figure out how to get a random cat fact. Navigating through the API documentation led me to [this](https://alexwohlbruck.github.io/cat-facts/docs/endpoints/facts.html) website, which told me the request I needed to get a random fact. I then used Nathan's [example](https://nathanmelenbrink.github.io/ps70/09_networking/index.html) of using the National Weather Service's API and adapted it to send a request to the cat facts endpoint. However, this didn't work, perhaps because the API requires some kind of login. I did some searching and we switched to this [random facts](https://uselessfacts.jsph.pl/) API instead of cat facts. Finally, I used the ArduinoJSON part of Nathan's tutorial to pull out the part of the returned payload that's just the fact string.
+
+Unfortunately, mid-project, Ana got a bad concussion and can no longer work on the project, so Nina and I worked together to finish as much as we could. We pivoted away from Bluetooth, and instead will have our ESP-32s talk to each other over wifi, and Nina worked on that code based on this [tutorial](https://randomnerdtutorials.com/esp-now-two-way-communication-esp32/).
+
+Nina and I managed to write all our code, but ran into a ton of issues, from my ESP not wanting to upload to hers completely not functioning. We did decide how we'll put everything together: the cat will hold the button. When the button's pressed, Nina's ESP will get a fact from the API, then send that fact to my ESP. My ESP will then display the fact on the screen, along with a message to press the button again for a new fact. We're now trying to fix all of the following issues. Once those are fixed, we'll paste our code at the end.
+
+<ul>
+  <li>Figuring out how to make the LCD screen work for ESP-32</li>
+  <li>De-bugging the code that makes our ESP-32s talk to each other</li>
+  <li>Putting the button press circuit into the cat</li>
+</ul> 
+
+</xmp>
+</body>
+
+<script src="../strapdown.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" ></script>
+
+</html>

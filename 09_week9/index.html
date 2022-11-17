@@ -47,7 +47,7 @@ Next came wiring the button circuit and writing that code, which was very straig
 
 After that, I needed to investigate the cat facts API and figure out how to get a random cat fact. Navigating through the API documentation led me to [this](https://alexwohlbruck.github.io/cat-facts/docs/endpoints/facts.html) website, which told me the request I needed to get a random fact. I then used Nathan's [example](https://nathanmelenbrink.github.io/ps70/09_networking/index.html) of using the National Weather Service's API and adapted it to send a request to the cat facts endpoint. However, this didn't work, perhaps because the API requires some kind of login. I did some searching and we switched to this [random facts](https://uselessfacts.jsph.pl/) API instead of cat facts. Finally, I used the ArduinoJSON part of Nathan's tutorial to pull out the part of the returned payload that's just the fact string.
 
-Unfortunately, mid-project, Ana got a bad concussion and can no longer work on the project, so Nina and I worked together to finish as much as we could. We pivoted away from Bluetooth, and instead will have our ESP-32s talk to each other over wifi, and Nina worked on that code based on this [tutorial](https://randomnerdtutorials.com/esp-now-two-way-communication-esp32/).
+Unfortunately, mid-project, Ana got a bad concussion and can no longer work on the project, so Nina and I worked together to finish as much as we could. We pivoted away from Bluetooth, and instead will have our ESP-32s talk to each other via ESP-NOW, and Nina worked on that code based on this [tutorial](https://randomnerdtutorials.com/esp-now-two-way-communication-esp32/).
 
 Nina and I managed to write all our code, but ran into a ton of issues, from my ESP not wanting to upload to hers completely not functioning. We did decide how we'll put everything together: the cat will hold the button. When the button's pressed, Nina's ESP will get a fact from the API, then send that fact to my ESP. My ESP will then display the fact on the screen, along with a message to press the button again for a new fact. We're now trying to fix all of the following issues. Once those are fixed, we'll paste our code at the end.
 
@@ -56,6 +56,8 @@ Nina and I managed to write all our code, but ran into a ton of issues, from my 
   <li>De-bugging the code that makes our ESP-32s talk to each other</li>
   <li>Putting the button press circuit into the cat</li>
 </ul> 
+
+After continuing to work on the project for a while, we managed to de-bug the ESP-NOW code by restarting with the tutorial and working through it again until the code worked. I also fixed the issues with the LCD screen: it turns out that I just accidentally messed up some pin numbers, and once I rearranged them, it worked totally fine. We were left with one final issue: while our ESP-32s were sending and receiving messages, they were being received as total gibberish (a bunch of backwards question marks and random characters). We checked our baud rates which were not the issue, then worked with Nathan to figure it out. We've tried changing the message from a structured message to just a string, which converted the total gibberish to just backward question marks: progress! We then tried changing the delay from 3 seconds to 10. So far, we haven't figured it out yet, and we're still trying things.
 
 </xmp>
 </body>

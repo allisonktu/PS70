@@ -22,7 +22,113 @@
 <xmp style="display:none;">
 <br> 
 
-### Final Project: Music Box
+# Final Project Documentation: Punchy McPunchface
+
+For my final project, I was particularly interested in [this](https://www.uncommongoods.com/product/mechanical-music-box-set) music box, which runs off of punched cardstock instead of playing a set song, so you can customize the tune. The goal is to create a machine that will automatically punch the holes needed for this music box. Usually, you have to hand-punch every single note, which is both a pain and difficult to do precisely due to human error. I want to create a machine that does this automatically. I have officially named my machine Punchy McPunchface.
+
+I am planning on Punchy having three components:
+
+<ul>
+  <li>The roller, which will move the paper forward</li>
+  <li>The puncher, which will actually punch the hole in the paper</li>
+  <li>The slider, which will move the puncher side to side</li>
+</ul>
+
+You can see these components in this diagram. Unfortunately, my drawing skills are not up to snuff, but I labeled everything to make it as clear as possible. I'm envisioning a box, which will hopefully eventually be made of sheet metal, but will be cardboard as I prototype. The back half of the box will be a cylinder holding extra paper (think like a roll of butcher paper) plus the punching mechanism and slider. The front half of the box will be the roller mechanism to move the paper forward.
+
+<img src="./Sketch.jpeg" alt="Sketched diagram" width="350"/>
+
+You can see the initial documentation for my initial progress on the roller and puncher components on my Week 11 [page](./011_week11/index.html), when the assignment was to make an MVP. Essentially, on that page, you can see how I got the roller to a semi-functional place, then struggled with a rack and pinion mechanism and decided to scrap it. Continue reading this page for all my progress to date, and see directly below for a materials list:
+
+##Materials List
+<ul>
+  <li>6 mm plywood</li>
+  <li>3 NEMA 17 stepper motors, one with a timing belt attachment</li>
+  <li>Arduino Uno microcontroller</li>
+  <li>3 L9110 motor drivers</li>
+  <li>Wire, pin-pin wires, and wire strippers</li>
+  <li>3 M3x55 screws</li>
+  <li>Lots of 3D printed parts, all STLs linked in this page</li>
+  <li>1 4.2 mm diameter steel rod</li>
+  <li>1 5 mm diameter wooden dowel</li>
+  <li>2 ball bearings</li>
+  <li>Timing belt</li>
+  <li>Pulley for timing belt</li>
+  <li>1 limit switch</li>
+</ul>
+
+##Roller
+The roller was in a semi-functioning place after MVP week. I created a quick cardboard housing and you can see it rolling a piece of vinyl forward below:
+
+<video width="750" height="420" controls>
+  <source src="WorkingRoller.MOV">
+Your browser does not support the video tag.
+</video>
+
+I knew I also needed a roll in the back to hold the strip of paper, kind of like how a roll of butcher paper or plastic wrap lets you roll the product off of it in an orderly manner. The easiest thing I could think to do was model two concentric cylinders: one in the center and one that was just a millimeter larger and wrapped around the center cylinder. Basically, the idea is that the center cylinder stays stationary while the outer cylinder can freely rotate with the small amount of clearance it has.
+
+After changing some of the other aspects of the design and testing, I concluded that I needed a mechanism to support the paper roller. The roller also needed to be a bit bigger because the dowel holding the wheels was bumping into the motor. I made the roller bigger and created a support bracket, which you can download <a download href='./PaperRollerFinal.stl'>here</a> and see below:
+
+<iframe src="https://college415.autodesk360.com/shares/public/SH9285eQTcf875d3c539ad4ae096a436e3e7?mode=embed" width="640" height="480" allowfullscreen="true" webkitallowfullscreen="true" mozallowfullscreen="true"  frameborder="0"></iframe>
+
+I also concluded that I would need to change the paper roller to accommodate the slider. I just made it a smaller cylinder that would spin freely on a 4.2 mm steel rod, and you can download it <a download href='./PaperRollerAndSupport.stl'>here</a>.
+
+##Puncher
+I began with a rack and pinion mechanism, with the idea that a stepper motor would spin the pinion, which would move the rack in the z direction. I'd attach something sharp to the rack and hope that it punched holes in the cardstock. I started by drawing a rack and pinion mechanism using [this](https://www.youtube.com/watch?v=khG4Zk5XZrw) excellent tutorial (be sure to reference the comment by Nicholas Halderman, which includes updated parameter information for the current version of Fusion). I then designed a top and bottom plate to contain the rack and pinion. The plates had a track to keep the rack in place: I made this by adding a half-cylinder to each plate and cutting a half-cylinder out of each side of the rack.
+
+It was at this point that I chatted with Nathan, who recommended I actually do some hole punching tests. I'm glad I did, because I quickly found that the cardstock was incredibly difficult to punch a hole through. All manual hole punches have long lever arms, so they have a lot of torque. I found it basically impossible to punch any kind of passable hole, even while holding the paper taut. This is exacerbated because the cardstock is quite thick and strong. Additionally, the music box's mechanism is pretty sensitive, so I don't think it'll work if I just punch through the material (which just displaces the material and leaves a bunch of debris) as opposed to cleanly cutting it.
+
+Given these issues, I now need to test some new options. Here's what I'm thinking may help:
+
+<ul>
+  <li>Changing to a drill mechanism</li>
+  <li>Changing to a drag knife mechanism</li>
+  <li>Adding a layer of thick rubber right under the cardstock so it's harder for the paper to just bend instead of cutting</li>
+  <li>Creating a bracket that is the exact size of the hole I need to punch, such that it's harder for the paper to bend in other places instead of cutting where I want it to cut</li>
+</ul>
+
+I began by testing the rubber option and found a few different rubber pieces with different levels of compliance. The stiffest rubber worked the best: when I applied a large amount of force with the bit of the hole punch, it did punch a clean hole. The problem here is that quite at lot of force is required. This works best when I apply the force directly on top of the bit of the hole bunch, instead of at an angle. It completely does not work (bends and tears up the paper a ton) when I tried quickly punching the hole punch bit down using a lot of force. See the clean holes made by the method of directly placing the bit on top of the paper and pressing, and the messy holes made by whacking the paper below:
+
+<img src="./Sketch.jpeg" alt="Sketched diagram" width="350"/>
+
+
+I also tried a "drill"-like test by applying force while spinning the hole punch bit. This somewhat worked, but did not punch all the way through. I think I could get this to potentially work if it were done by a machine: obviously, there is a lot of human error when you're just manually spinning a hole punch.
+
+I spoke with Nathan and Ibrahim about options, including having a threaded rod/lead screw situation to press down a long lever arm to provide the force, or maybe switching to a drag knife situation. We decided that what would make the most sense is sticking with the rack and pinion idea, but adding a bunch more gears to try to increase the force that I can end up applying to the paper. I started by testing two existing gearbox mechanisms to see if this will even work before designing my own. I printed [this](https://www.thingiverse.com/thing:4255427) stackable planetary gearbox which you can stack to change the final gear ratio, and [this](https://www.thingiverse.com/thing:4389008) other gearbox.
+
+After printing, the planetary gearbox was the clear winner, especially because I didn't know how much force would be sufficient to punch through the paper, so the stackable gearbox made much more sense. I printed out enough parts to make 4 layers, which would result in a 1:256 gear ratio. This ended up taking forever because of some difficulties removing support material on a critical aspect of the gearbox. See what an assembled unit looks like below:
+
+<img src="./GearboxUnit.jpeg" alt="One unit of a stackable gearbox" width="350"/>
+
+I also printed the gear that attached to the stepper motor shaft and had to drill out the hole a bit to get it to fit on. After a couple whacks with a rubber mallet, it was on well:
+
+<img src="./MotorWithGear.jpeg" alt="NEMA-17 motor with gear on shaft" width="350"/>
+
+I then turned to making the rack, which I did by measuring the gears that the planetary gearbox used and estimating measurements until I got to a rack that would work. The YouTube tutorial I referenced above for rack-making is entirely parametrized, so that made for easy adjusting. I also added half-circle cutouts on both sides to help the rack stay in place as it moved against the housing. See my initial attempt below.
+
+<img src="./TinyRack.jpeg" alt="Very teeny initial rack attempt" width="350"/>
+
+Then, I needed to add an attachment where I could glue the punching bit. After adding this, I reached my final rack model. Download the STL <a download href='./Rackv3.stl'>here</a> and see it below:
+
+<iframe src="https://college415.autodesk360.com/shares/public/SH9285eQTcf875d3c53975942e660473ccff?mode=embed" width="640" height="480" allowfullscreen="true" webkitallowfullscreen="true" mozallowfullscreen="true"  frameborder="0"></iframe>
+
+After that, I disassembled and cut the hole punch that came with the music box kit down to fit in the rack, then hot glued it into place. I also designed the rack housing, for which I decided to make square attachments (a top and bottom) that could screw into the planetary gearbox. I cut a circle in the middle of the top and bottom that would fit the output gear of the gearbox. I added matching half-circle protrusions on the top and bottom to match up with the half-circle cutouts I cut into the rack. My first print revealed that these needed to be smaller than the rack cut-outs, so I made the half-circle 2.5 mm for the protrusions and 3 mm for the cutouts. Then, I positioned the tracks such that placing the rack on them would make the rack line up with the gearbox's output gear. Download the STL for the <a download href='./RackTopFinal.stl'>top</a> and <a download href='./RackBottomFinal.stl'>bottom</a> and see below:
+
+<iframe src="https://college415.autodesk360.com/shares/public/SH9285eQTcf875d3c5393658a540ad639143?mode=embed" width="640" height="480" allowfullscreen="true" webkitallowfullscreen="true" mozallowfullscreen="true"  frameborder="0"></iframe>
+
+<iframe src="https://college415.autodesk360.com/shares/public/SH9285eQTcf875d3c539d6d652e7f1fb5589?mode=embed" width="640" height="480" allowfullscreen="true" webkitallowfullscreen="true" mozallowfullscreen="true"  frameborder="0"></iframe>
+
+Finally, I screwed everything down to my stepper motor. This took lots of elbow grease and trial and error: testing effectively required me to screw everything in, so I did lots of screwing and unscrewing. I had some incidents where the gears would get stuck, so I added an additional spacer (the thin circle that prints out with the planetary gearbox) for the gear unit that was having trouble. Here's the final gearbox:
+
+<img src="./Gearbox.jpeg" alt="Stacked gearbox with rack and pinion" width="350"/>
+
+Unfortunately, this 1:64 ratio (there at 3 gear units and one thick spacer on the bottom) is already incredibly slow and still doesn't provide  enough force to punch the super thick paper needed for the music box. It does, however, punch normal paper. This would be something to revisit in the future: perhaps a different gearbox design or a totally different strategy (something with a long lever arm and a lead screw/threaded rod, maybe) would be better.
+
+
+##Housing
+
+
+## If you're interested, see my initial ideas below.
 
 ####Inspiration
 I love music boxes, and onces saw [this](https://www.uncommongoods.com/product/mechanical-music-box-set) commercial music box, which lets you punch notes into cardstock strips to make different tunes.

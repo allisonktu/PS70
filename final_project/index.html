@@ -24,7 +24,7 @@
 
 # Final Project Documentation: Punchy McPunchface
 
-For my final project, I was particularly interested in [this](https://www.uncommongoods.com/product/mechanical-music-box-set) music box, which runs off of punched cardstock instead of playing a set song, so you can customize the tune. The goal is to create a machine that will automatically punch the holes needed for this music box. Usually, you have to hand-punch every single note, which is both a pain and difficult to do precisely due to human error. I want to create a machine that does this automatically. I have officially named my machine Punchy McPunchface.
+For my final project, I was particularly interested in [this](https://www.uncommongoods.com/product/mechanical-music-box-set) music box, which runs off of punched cardstock instead of playing a set song, so you can customize the tune. The goal is to create a machine that will automatically punch the holes needed for this music box. Usually, you have to hand-punch every single note, which is both a pain and difficult to do precisely due to human error. I want to create a machine that does this automatically. I have officially named my machine Punchy McPunchface. Here's my final project [video](https://youtu.be/L07CEHaLAlw), and read on for the journey that Punchy was.
 
 I am planning on Punchy having three components:
 
@@ -126,6 +126,120 @@ Unfortunately, this 1:64 ratio (there at 3 gear units and one thick spacer on th
 
 
 ##Housing
+To start, I made an initial model out of cardboard and tried to fit all my elements in. I adjusted the spacing and such a few times until everything fit. I cut holes in the sides for each of the components, including my dowels, the stepper motors, and timing belt. I iterated everything in cardboard, then switched to wood once I knew everything was working.
+
+I cut a small 20x20mm square to test the kerf, which was about 0.1 mm. Then, I used the DXF for Laser app that PK suggested to adjust my cuts accordingly, setting the kerf as 0.2 mm so I could have a tight press fit. Some hammering later, and the housing was done.
+
+##Code
+Unfortunately, I had so many bugs and issues to work out that I wasn't able to get my code quite right, nor does it fully integrate with the device because I wasn't able to get AccelStepper to function (so the limit switch doesn't work) and the slider isn't quite functional. However, the full framework is in place, with some help from my boyfriend who studies CS, and you can see it below:
+
+<pre><code class="language-arduino">
+<pre>
+<font color="#5e6d03">#include</font> <font color="#434f54">&lt;</font><b><font color="#d35400">Stepper</font></b><font color="#434f54">.</font><font color="#000000">h</font><font color="#434f54">&gt;</font>
+<font color="#5e6d03">#include</font> <font color="#434f54">&lt;</font><b><font color="#d35400">WiFi</font></b><font color="#434f54">.</font><font color="#000000">h</font><font color="#434f54">&gt;</font>
+<font color="#5e6d03">#include</font> <font color="#434f54">&lt;</font><b><font color="#d35400">ezButton</font></b><font color="#434f54">.</font><font color="#000000">h</font><font color="#434f54">&gt;</font> <font color="#434f54">&#47;&#47; To run limit switch</font>
+
+<font color="#434f54">&#47;&#47; Create ezbutton for limit switch on pin 37</font>
+<b><font color="#d35400">ezButton</font></b> <font color="#000000">limitSwitch</font><font color="#000000">(</font><font color="#000000">37</font><font color="#000000">)</font><font color="#000000">;</font>
+
+<font color="#434f54">&#47;&#47; Define steppers and the pins they will use</font>
+
+<font color="#00979c">int</font> <font color="#000000">stepsPerRevolution</font> <font color="#434f54">=</font> <font color="#000000">200</font><font color="#000000">;</font>
+<b><font color="#d35400">Stepper</font></b> <font color="#000000">RollerStepper</font><font color="#000000">(</font><font color="#000000">stepsPerRevolution</font><font color="#434f54">,</font> <font color="#000000">2</font><font color="#434f54">,</font> <font color="#000000">3</font><font color="#434f54">,</font> <font color="#000000">4</font><font color="#434f54">,</font> <font color="#000000">5</font><font color="#000000">)</font><font color="#000000">;</font>
+<b><font color="#d35400">Stepper</font></b> <font color="#000000">PuncherStepper</font><font color="#000000">(</font><font color="#000000">stepsPerRevolution</font><font color="#434f54">,</font> <font color="#000000">6</font><font color="#434f54">,</font> <font color="#000000">7</font><font color="#434f54">,</font> <font color="#000000">8</font><font color="#434f54">,</font> <font color="#000000">9</font><font color="#000000">)</font><font color="#000000">;</font>
+<b><font color="#d35400">Stepper</font></b> <font color="#000000">SliderStepper</font><font color="#000000">(</font><font color="#000000">stepsPerRevolution</font><font color="#434f54">,</font> <font color="#000000">10</font><font color="#434f54">,</font> <font color="#000000">11</font><font color="#434f54">,</font> <font color="#000000">12</font><font color="#434f54">,</font> <font color="#000000">13</font><font color="#000000">)</font><font color="#000000">;</font>
+
+<font color="#434f54">&#47;&#47; Array of holes to punch</font>
+
+<font color="#00979c">int</font> <font color="#000000">holesToPunch2D</font><font color="#000000">[</font> <font color="#000000">8</font> <font color="#000000">]</font><font color="#000000">[</font> <font color="#000000">5</font> <font color="#000000">]</font> <font color="#434f54">=</font> <font color="#000000">{</font>
+ &nbsp;<font color="#000000">{</font><font color="#000000">1</font><font color="#434f54">,</font> <font color="#000000">0</font><font color="#434f54">,</font> <font color="#000000">1</font><font color="#434f54">,</font> <font color="#000000">0</font><font color="#434f54">,</font> <font color="#000000">0</font><font color="#000000">}</font><font color="#434f54">,</font>
+ &nbsp;<font color="#000000">{</font><font color="#000000">1</font><font color="#434f54">,</font> <font color="#000000">0</font><font color="#434f54">,</font> <font color="#000000">1</font><font color="#434f54">,</font> <font color="#000000">0</font><font color="#434f54">,</font> <font color="#000000">0</font><font color="#000000">}</font><font color="#434f54">,</font>
+ &nbsp;<font color="#000000">{</font><font color="#000000">0</font><font color="#434f54">,</font> <font color="#000000">0</font><font color="#434f54">,</font> <font color="#000000">1</font><font color="#434f54">,</font> <font color="#000000">0</font><font color="#434f54">,</font> <font color="#000000">0</font><font color="#000000">}</font><font color="#434f54">,</font>
+ &nbsp;<font color="#000000">{</font><font color="#000000">1</font><font color="#434f54">,</font> <font color="#000000">1</font><font color="#434f54">,</font> <font color="#000000">1</font><font color="#434f54">,</font> <font color="#000000">0</font><font color="#434f54">,</font> <font color="#000000">0</font><font color="#000000">}</font><font color="#434f54">,</font>
+ &nbsp;<font color="#000000">{</font><font color="#000000">1</font><font color="#434f54">,</font> <font color="#000000">0</font><font color="#434f54">,</font> <font color="#000000">1</font><font color="#434f54">,</font> <font color="#000000">0</font><font color="#434f54">,</font> <font color="#000000">0</font><font color="#000000">}</font><font color="#434f54">,</font>
+ &nbsp;<font color="#000000">{</font><font color="#000000">1</font><font color="#434f54">,</font> <font color="#000000">0</font><font color="#434f54">,</font> <font color="#000000">1</font><font color="#434f54">,</font> <font color="#000000">1</font><font color="#434f54">,</font> <font color="#000000">0</font><font color="#000000">}</font><font color="#434f54">,</font>
+ &nbsp;<font color="#000000">{</font><font color="#000000">0</font><font color="#434f54">,</font> <font color="#000000">0</font><font color="#434f54">,</font> <font color="#000000">0</font><font color="#434f54">,</font> <font color="#000000">0</font><font color="#434f54">,</font> <font color="#000000">0</font><font color="#000000">}</font><font color="#434f54">,</font>
+ &nbsp;<font color="#000000">{</font><font color="#000000">1</font><font color="#434f54">,</font> <font color="#000000">1</font><font color="#434f54">,</font> <font color="#000000">1</font><font color="#434f54">,</font> <font color="#000000">1</font><font color="#434f54">,</font> <font color="#000000">1</font><font color="#000000">}</font><font color="#434f54">,</font>
+<font color="#000000">}</font><font color="#000000">;</font>
+
+<font color="#00979c">void</font> <font color="#5e6d03">loop</font> <font color="#000000">(</font><font color="#000000">holesToPunch</font><font color="#000000">)</font> <font color="#000000">{</font>
+ &nbsp;<font color="#000000">punchAllHoles</font><font color="#000000">(</font><font color="#000000">holesToPunch</font><font color="#000000">)</font><font color="#000000">;</font>
+<font color="#000000">}</font>
+
+<font color="#00979c">void</font> <font color="#5e6d03">setup</font><font color="#000000">(</font><font color="#000000">)</font> <font color="#000000">{</font>
+ &nbsp;<font color="#434f54">&#47;&#47; Set limit switch debounce time to 50 milliseconds</font>
+ &nbsp;<font color="#000000">limitSwitch</font><font color="#434f54">.</font><font color="#d35400">setDebounceTime</font><font color="#000000">(</font><font color="#000000">50</font><font color="#000000">)</font><font color="#000000">;</font>
+
+
+ &nbsp;<font color="#434f54">&#47;&#47;Set speed to 10 rev&#47;min for all motors</font>
+
+ &nbsp;<font color="#000000">RollerStepper</font><font color="#434f54">.</font><font color="#d35400">setSpeed</font><font color="#000000">(</font><font color="#000000">10</font><font color="#000000">)</font><font color="#000000">;</font>
+ &nbsp;<font color="#000000">SliderStepper</font><font color="#434f54">.</font><font color="#d35400">setSpeed</font><font color="#000000">(</font><font color="#000000">10</font><font color="#000000">)</font><font color="#000000">;</font>
+ &nbsp;<font color="#000000">PuncherStepper</font><font color="#434f54">.</font><font color="#d35400">setSpeed</font><font color="#000000">(</font><font color="#000000">10</font><font color="#000000">)</font><font color="#000000">;</font>
+
+ &nbsp;<font color="#434f54">&#47;&#47;Run calibration of slider</font>
+ &nbsp;<font color="#434f54">&#47;&#47; calibrateSlider();</font>
+<font color="#000000">}</font>
+
+<font color="#00979c">void</font> <font color="#000000">calibrateSlider</font><font color="#000000">(</font><font color="#000000">)</font>
+<font color="#000000">{</font>
+ &nbsp;<font color="#000000">limitSwitch</font><font color="#434f54">.</font><font color="#5e6d03">loop</font><font color="#000000">(</font><font color="#000000">)</font><font color="#000000">;</font> <font color="#434f54">&#47;&#47; Call first so ezbutton works properly</font>
+
+ &nbsp;<font color="#434f54">&#47;&#47; Set slider stepper speed and run it</font>
+ &nbsp;<font color="#000000">SliderStepper</font><font color="#434f54">.</font><font color="#d35400">setSpeed</font><font color="#000000">(</font><font color="#000000">50</font><font color="#000000">)</font><font color="#000000">;</font>
+ &nbsp;<font color="#000000">SliderStepper</font><font color="#434f54">.</font><font color="#d35400">runSpeed</font><font color="#000000">(</font><font color="#000000">)</font><font color="#000000">;</font>
+
+ &nbsp;<font color="#434f54">&#47;&#47; Print limit switch changes</font>
+ &nbsp;<font color="#5e6d03">if</font> <font color="#000000">(</font><font color="#000000">limitSwitch</font><font color="#434f54">.</font><font color="#d35400">isPressed</font><font color="#000000">(</font><font color="#000000">)</font><font color="#000000">)</font>
+ &nbsp;&nbsp;&nbsp;<b><font color="#d35400">Serial</font></b><font color="#434f54">.</font><font color="#d35400">println</font><font color="#000000">(</font><font color="#005c5f">&#34;The limit switch: UNTOUCHED -&gt; TOUCHED&#34;</font><font color="#000000">)</font><font color="#000000">;</font>
+
+ &nbsp;<font color="#5e6d03">if</font> <font color="#000000">(</font><font color="#000000">limitSwitch</font><font color="#434f54">.</font><font color="#d35400">isReleased</font><font color="#000000">(</font><font color="#000000">)</font><font color="#000000">)</font>
+ &nbsp;&nbsp;&nbsp;<b><font color="#d35400">Serial</font></b><font color="#434f54">.</font><font color="#d35400">println</font><font color="#000000">(</font><font color="#005c5f">&#34;The limit switch: TOUCHED -&gt; UNTOUCHED&#34;</font><font color="#000000">)</font><font color="#000000">;</font>
+
+ &nbsp;<font color="#434f54">&#47;&#47; Get state of limit swtich and set current position to 0 once the limit switch is pressed</font>
+
+ &nbsp;<font color="#00979c">int</font> <font color="#000000">state</font> <font color="#434f54">=</font> <font color="#000000">limitSwitch</font><font color="#434f54">.</font><font color="#d35400">getState</font><font color="#000000">(</font><font color="#000000">)</font><font color="#000000">;</font>
+ &nbsp;<font color="#5e6d03">if</font> <font color="#000000">(</font><font color="#000000">state</font> <font color="#434f54">==</font> <font color="#00979c">HIGH</font><font color="#000000">)</font>
+ &nbsp;&nbsp;&nbsp;<b><font color="#d35400">Serial</font></b><font color="#434f54">.</font><font color="#d35400">println</font><font color="#000000">(</font><font color="#005c5f">&#34;The limit switch: UNTOUCHED&#34;</font><font color="#000000">)</font><font color="#000000">;</font>
+ &nbsp;<font color="#5e6d03">else</font>
+ &nbsp;&nbsp;&nbsp;<b><font color="#d35400">Serial</font></b><font color="#434f54">.</font><font color="#d35400">println</font><font color="#000000">(</font><font color="#005c5f">&#34;The limit switch: TOUCHED&#34;</font><font color="#000000">)</font><font color="#000000">;</font>
+ &nbsp;<font color="#000000">SliderStepper</font><font color="#434f54">.</font><font color="#d35400">setCurrentPosition</font><font color="#000000">(</font><font color="#000000">0</font><font color="#000000">)</font><font color="#000000">;</font>
+ &nbsp;<font color="#5e6d03">return</font><font color="#000000">;</font>
+<font color="#000000">}</font>
+
+<font color="#00979c">void</font> <font color="#000000">punchAllHoles</font><font color="#000000">(</font><font color="#00979c">int</font> <font color="#000000">holesToPunch2D</font><font color="#000000">[</font> <font color="#000000">8</font> <font color="#000000">]</font><font color="#000000">[</font> <font color="#000000">5</font> <font color="#000000">]</font><font color="#000000">)</font> <font color="#000000">{</font>
+ &nbsp;<font color="#5e6d03">for</font> <font color="#000000">(</font><font color="#00979c">int</font> <font color="#000000">i</font> <font color="#434f54">=</font> <font color="#000000">0</font><font color="#000000">;</font> <font color="#000000">i</font> <font color="#434f54">&lt;</font> <font color="#00979c">sizeof</font> <font color="#000000">(</font><font color="#000000">holesToPunch2D</font><font color="#000000">)</font> <font color="#434f54">&#47;</font> <font color="#00979c">sizeof</font> <font color="#000000">(</font><font color="#000000">holesToPunch2D</font><font color="#000000">[</font><font color="#000000">0</font><font color="#000000">]</font><font color="#000000">)</font><font color="#000000">;</font> <font color="#000000">i</font><font color="#434f54">++</font><font color="#000000">)</font> <font color="#000000">{</font>
+ &nbsp;&nbsp;&nbsp;<font color="#000000">punchRow</font><font color="#000000">(</font><font color="#000000">holesToPunch2D</font><font color="#000000">[</font><font color="#000000">i</font><font color="#000000">]</font><font color="#000000">)</font><font color="#000000">;</font>
+ &nbsp;&nbsp;&nbsp;<font color="#000000">PuncherStepper</font><font color="#434f54">.</font><font color="#d35400">step</font><font color="#000000">(</font><font color="#434f54">-</font><font color="#000000">17</font><font color="#000000">)</font><font color="#000000">;</font>
+ &nbsp;<font color="#000000">}</font>
+<font color="#000000">}</font>
+
+
+<font color="#00979c">void</font> <font color="#000000">punchRow</font><font color="#000000">(</font><font color="#00979c">int</font> <font color="#000000">holesToPunch</font> <font color="#000000">[</font><font color="#000000">5</font><font color="#000000">]</font><font color="#000000">)</font>
+<font color="#000000">{</font>
+ &nbsp;<font color="#00979c">int</font> <font color="#000000">puncherCurrentPosition</font> <font color="#434f54">=</font> <font color="#000000">0</font><font color="#000000">;</font>
+ &nbsp;<font color="#5e6d03">for</font> <font color="#000000">(</font><font color="#00979c">int</font> <font color="#000000">i</font> <font color="#434f54">=</font> <font color="#000000">0</font><font color="#000000">;</font> <font color="#000000">i</font> <font color="#434f54">&lt;</font> <font color="#00979c">sizeof</font> <font color="#000000">(</font><font color="#000000">holesToPunch</font><font color="#000000">)</font> <font color="#434f54">&#47;</font> <font color="#00979c">sizeof</font> <font color="#000000">(</font><font color="#000000">holesToPunch</font><font color="#000000">[</font><font color="#000000">0</font><font color="#000000">]</font><font color="#000000">)</font><font color="#000000">;</font> <font color="#000000">i</font><font color="#434f54">++</font><font color="#000000">)</font>
+ &nbsp;<font color="#000000">{</font>
+ &nbsp;&nbsp;&nbsp;<font color="#5e6d03">if</font> <font color="#000000">(</font><font color="#000000">holesToPunch</font><font color="#000000">[</font><font color="#000000">i</font><font color="#000000">]</font> <font color="#434f54">==</font> <font color="#000000">1</font><font color="#000000">)</font>
+ &nbsp;&nbsp;&nbsp;<font color="#000000">{</font>
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#00979c">int</font> <font color="#000000">howManySpotsToMove</font> <font color="#434f54">=</font> <font color="#000000">i</font> <font color="#434f54">-</font> <font color="#000000">puncherCurrentPosition</font><font color="#000000">;</font>
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#000000">moveSliderXSpots</font><font color="#000000">(</font><font color="#000000">howManySpotsToMove</font><font color="#000000">)</font><font color="#000000">;</font>
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#000000">puncherCurrentPosition</font> <font color="#434f54">=</font> <font color="#000000">i</font><font color="#000000">;</font>
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#000000">PuncherStepper</font><font color="#434f54">.</font><font color="#d35400">step</font><font color="#000000">(</font><font color="#434f54">-</font><font color="#000000">50000</font><font color="#000000">)</font><font color="#000000">;</font>
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#000000">PuncherStepper</font><font color="#434f54">.</font><font color="#d35400">step</font><font color="#000000">(</font><font color="#000000">50000</font><font color="#000000">)</font><font color="#000000">;</font>
+ &nbsp;&nbsp;&nbsp;<font color="#000000">}</font>
+ &nbsp;<font color="#000000">}</font>
+<font color="#000000">}</font>
+
+<font color="#00979c">void</font> <font color="#000000">moveSliderXSpots</font><font color="#000000">(</font><font color="#00979c">int</font> <font color="#000000">spots</font><font color="#000000">)</font>
+<font color="#000000">{</font>
+ &nbsp;<font color="#5e6d03">for</font> <font color="#000000">(</font><font color="#00979c">int</font> <font color="#000000">i</font> <font color="#434f54">=</font> <font color="#000000">0</font><font color="#000000">;</font> <font color="#000000">i</font> <font color="#434f54">&lt;</font> <font color="#000000">spots</font><font color="#000000">;</font> <font color="#000000">i</font><font color="#434f54">++</font><font color="#000000">)</font>
+ &nbsp;<font color="#000000">{</font>
+ &nbsp;&nbsp;&nbsp;<font color="#000000">SliderStepper</font><font color="#434f54">.</font><font color="#d35400">step</font><font color="#000000">(</font><font color="#000000">10</font><font color="#000000">)</font><font color="#000000">;</font>
+ &nbsp;<font color="#000000">}</font>
+<font color="#000000">}</font>
+</pre>
+</code></pre> 
 
 
 ## If you're interested, see my initial ideas below.

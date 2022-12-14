@@ -57,7 +57,162 @@ Nina and I managed to write all our code, but ran into a ton of issues, from my 
   <li>Putting the button press circuit into the cat</li>
 </ul> 
 
-After continuing to work on the project for a while, we managed to de-bug the ESP-NOW code by restarting with the tutorial and working through it again until the code worked. I also fixed the issues with the LCD screen: it turns out that I just accidentally messed up some pin numbers, and once I rearranged them, it worked totally fine. We were left with one final issue: while our ESP-32s were sending and receiving messages, they were being received as total gibberish (a bunch of backwards question marks and random characters). We checked our baud rates which were not the issue, then worked with Nathan to figure it out. We've tried changing the message from a structured message to just a string, which converted the total gibberish to just backward question marks: progress! We then tried changing the delay from 3 seconds to 10. So far, we haven't figured it out yet, and we're still trying things.
+After continuing to work on the project for a while, we managed to de-bug the ESP-NOW code by restarting with the tutorial and working through it again until the code worked. I also fixed the issues with the LCD screen: it turns out that I just accidentally messed up some pin numbers, and once I rearranged them, it worked totally fine. We were left with one final issue: while our ESP-32s were sending and receiving messages, they were being received as total gibberish (a bunch of backwards question marks and random characters). We checked our baud rates which were not the issue, then worked with Nathan to figure it out. We've tried changing the message from a structured message to just a string, which converted the total gibberish to just backward question marks: progress! We then tried changing the delay from 3 seconds to 10.
+
+We did some research and found that strings are a stubborn type of data and won't send if they're over 10 characters. We pivoted and used the National Weather Service API instead, to send the current temperature. However, this didn't work either. We spoke to Nathan and tried using the exact tutorial code for ESP-NOW on the PS70 website, but that also failed. Some more research later and We got the example code from the site to work by adding the line 
+memset(&peerInfo, 0, sizeof(peerInfo)); 
+before the line
+memcpy(peerInfo.peer_addr, broadcastAddress, 6);
+
+With the sample code working, we turned again to our project. Sadly, we never managed to get it to actually send the weather, it only sent a 0 from Nina's ESP to mine. We couldn't figure out what happened, especially because our ESP's were displaying successful sending of the data. Apparently, my ESP wasn't receiving it, but this didn't make any sense to us given that we didn't end up making a ton of changes to the tutorial code, and that worked. Nina's ESP also totally failed at some point and we had to replace it. We weren't able to totally finish the project given the repeated failures, unfortunately. But, you can see my part of our code below:
+
+<pre><code class="language-arduino">
+<pre>
+<pre>
+<font color="#5e6d03">#include</font> <font color="#434f54">&lt;</font><font color="#000000">Adafruit_GFX</font><font color="#434f54">.</font><font color="#000000">h</font><font color="#434f54">&gt;</font> &nbsp;&nbsp;&nbsp;<font color="#434f54">&#47;&#47; Core graphics library</font>
+<font color="#5e6d03">#include</font> <font color="#434f54">&lt;</font><font color="#000000">Adafruit_ST7735</font><font color="#434f54">.</font><font color="#000000">h</font><font color="#434f54">&gt;</font> <font color="#434f54">&#47;&#47; Hardware-specific library for ST7735</font>
+<font color="#5e6d03">#include</font> <font color="#434f54">&lt;</font><font color="#000000">Adafruit_ST7789</font><font color="#434f54">.</font><font color="#000000">h</font><font color="#434f54">&gt;</font> <font color="#434f54">&#47;&#47; Hardware-specific library for ST7789</font>
+<font color="#5e6d03">#include</font> <font color="#434f54">&lt;</font><font color="#000000">Fonts</font><font color="#434f54">&#47;</font><font color="#000000">FreeMonoBoldOblique12pt7b</font><font color="#434f54">.</font><font color="#000000">h</font><font color="#434f54">&gt;</font> <font color="#434f54">&#47;&#47; Font</font>
+<font color="#5e6d03">#include</font> <font color="#434f54">&lt;</font><b><font color="#d35400">SPI</font></b><font color="#434f54">.</font><font color="#000000">h</font><font color="#434f54">&gt;</font>
+<font color="#5e6d03">#include</font> <font color="#434f54">&lt;</font><b><font color="#d35400">WiFi</font></b><font color="#434f54">.</font><font color="#000000">h</font><font color="#434f54">&gt;</font>
+<font color="#5e6d03">#include</font> <font color="#434f54">&lt;</font><font color="#d35400">Wire</font><font color="#434f54">.</font><font color="#000000">h</font><font color="#434f54">&gt;</font>
+<font color="#5e6d03">#include</font> <font color="#434f54">&lt;</font><font color="#000000">ArduinoJson</font><font color="#434f54">.</font><font color="#000000">h</font><font color="#434f54">&gt;</font>
+<font color="#5e6d03">#include</font> <font color="#434f54">&lt;</font><font color="#000000">HTTPClient</font><font color="#434f54">.</font><font color="#000000">h</font><font color="#434f54">&gt;</font>
+<font color="#5e6d03">#include</font> <font color="#434f54">&lt;</font><font color="#000000">esp_now</font><font color="#434f54">.</font><font color="#000000">h</font><font color="#434f54">&gt;</font>
+<font color="#5e6d03">#include</font> <font color="#434f54">&lt;</font><font color="#000000">Adafruit_SSD1306</font><font color="#434f54">.</font><font color="#000000">h</font><font color="#434f54">&gt;</font>
+
+<font color="#5e6d03">#define</font> <font color="#000000">TFT_CS</font> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#000000">17</font>
+<font color="#5e6d03">#define</font> <font color="#000000">TFT_RST</font> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#000000">16</font>
+<font color="#5e6d03">#define</font> <font color="#000000">TFT_DC</font> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#000000">4</font>
+
+<font color="#434f54">&#47;&#47; For 1.14&#34;, 1.3&#34;, 1.54&#34;, 1.69&#34;, and 2.0&#34; TFT with ST7789:</font>
+<font color="#000000">Adafruit_ST7789</font> <font color="#000000">tft</font> <font color="#434f54">=</font> <font color="#000000">Adafruit_ST7789</font><font color="#000000">(</font><font color="#000000">TFT_CS</font><font color="#434f54">,</font> <font color="#000000">TFT_DC</font><font color="#434f54">,</font> <font color="#000000">TFT_RST</font><font color="#000000">)</font><font color="#000000">;</font>
+
+<font color="#434f54">&#47;&#47;Code to set up receiving the string from Nina&#39;s ESP</font>
+<font color="#00979c">uint8_t</font> <font color="#000000">broadcastAddress</font><font color="#000000">[</font><font color="#000000">]</font> <font color="#434f54">=</font> <font color="#000000">{</font><font color="#000000">0xC8</font><font color="#434f54">,</font> <font color="#000000">0xF0</font><font color="#434f54">,</font> <font color="#000000">0x9E</font><font color="#434f54">,</font> <font color="#000000">0x47</font><font color="#434f54">,</font> <font color="#000000">0xDF</font><font color="#434f54">,</font> <font color="#000000">0x68</font><font color="#000000">}</font><font color="#000000">;</font>
+
+<font color="#434f54">&#47;&#47; Define variables to store incoming readings</font>
+<font color="#00979c">float</font> <font color="#000000">incomingTemp</font><font color="#000000">;</font>
+
+<font color="#434f54">&#47;&#47; Variable to store if sending data was successful</font>
+<font color="#00979c">String</font> <font color="#000000">success</font><font color="#000000">;</font>
+
+<font color="#434f54">&#47;&#47;Structure example to send data</font>
+<font color="#434f54">&#47;&#47;Must match the receiver structure</font>
+<font color="#00979c">typedef</font> <font color="#00979c">struct</font> <font color="#000000">struct_message</font> <font color="#000000">{</font>
+ &nbsp;<font color="#00979c">float</font> <font color="#000000">temp</font><font color="#000000">;</font>
+<font color="#000000">}</font> <font color="#000000">struct_message</font><font color="#000000">;</font>
+
+<font color="#000000">struct_message</font> <font color="#000000">incomingReadings</font><font color="#000000">;</font>
+
+<font color="#000000">esp_now_peer_info_t</font> <font color="#000000">peerInfo</font><font color="#000000">;</font>
+
+<font color="#434f54">&#47;&#47; Callback when data is sent</font>
+<font color="#00979c">void</font> <font color="#000000">OnDataSent</font><font color="#000000">(</font><font color="#00979c">const</font> <font color="#00979c">uint8_t</font> <font color="#434f54">*</font><font color="#000000">mac_addr</font><font color="#434f54">,</font> <font color="#000000">esp_now_send_status_t</font> <font color="#d35400">status</font><font color="#000000">)</font> <font color="#000000">{</font>
+ &nbsp;<b><font color="#d35400">Serial</font></b><font color="#434f54">.</font><font color="#d35400">print</font><font color="#000000">(</font><font color="#005c5f">&#34;\r\nLast Packet Send Status:\t&#34;</font><font color="#000000">)</font><font color="#000000">;</font>
+ &nbsp;<b><font color="#d35400">Serial</font></b><font color="#434f54">.</font><font color="#d35400">println</font><font color="#000000">(</font><font color="#d35400">status</font> <font color="#434f54">==</font> <font color="#000000">ESP_NOW_SEND_SUCCESS</font> <font color="#434f54">?</font> <font color="#005c5f">&#34;Delivery Success&#34;</font> <font color="#434f54">:</font> <font color="#005c5f">&#34;Delivery Fail&#34;</font><font color="#000000">)</font><font color="#000000">;</font>
+ &nbsp;<font color="#5e6d03">if</font> <font color="#000000">(</font><font color="#d35400">status</font> <font color="#434f54">==</font> <font color="#000000">0</font><font color="#000000">)</font> <font color="#000000">{</font>
+ &nbsp;&nbsp;&nbsp;<font color="#000000">success</font> <font color="#434f54">=</font> <font color="#005c5f">&#34;Delivery Success :)&#34;</font><font color="#000000">;</font>
+ &nbsp;<font color="#000000">}</font>
+ &nbsp;<font color="#5e6d03">else</font> <font color="#000000">{</font>
+ &nbsp;&nbsp;&nbsp;<font color="#000000">success</font> <font color="#434f54">=</font> <font color="#005c5f">&#34;Delivery Fail :(&#34;</font><font color="#000000">;</font>
+ &nbsp;<font color="#000000">}</font>
+<font color="#000000">}</font>
+
+<font color="#434f54">&#47;&#47; Callback when data is received</font>
+<font color="#00979c">void</font> <font color="#000000">OnDataRecv</font><font color="#000000">(</font><font color="#00979c">const</font> <font color="#00979c">uint8_t</font> <font color="#434f54">*</font> <font color="#000000">mac</font><font color="#434f54">,</font> <font color="#00979c">const</font> <font color="#00979c">uint8_t</font> <font color="#434f54">*</font><font color="#000000">incomingData</font><font color="#434f54">,</font> <font color="#00979c">int</font> <font color="#000000">len</font><font color="#000000">)</font> <font color="#000000">{</font>
+ &nbsp;<font color="#d35400">memcpy</font><font color="#000000">(</font><font color="#434f54">&amp;</font><font color="#000000">incomingReadings</font><font color="#434f54">,</font> <font color="#000000">incomingData</font><font color="#434f54">,</font> <font color="#00979c">sizeof</font><font color="#000000">(</font><font color="#000000">incomingReadings</font><font color="#000000">)</font><font color="#000000">)</font><font color="#000000">;</font>
+ &nbsp;<b><font color="#d35400">Serial</font></b><font color="#434f54">.</font><font color="#d35400">print</font><font color="#000000">(</font><font color="#005c5f">&#34;Bytes received: &#34;</font><font color="#000000">)</font><font color="#000000">;</font>
+ &nbsp;<b><font color="#d35400">Serial</font></b><font color="#434f54">.</font><font color="#d35400">println</font><font color="#000000">(</font><font color="#000000">len</font><font color="#000000">)</font><font color="#000000">;</font>
+ &nbsp;<font color="#000000">incomingTemp</font> <font color="#434f54">=</font> <font color="#000000">incomingReadings</font><font color="#434f54">.</font><font color="#000000">temp</font><font color="#000000">;</font>
+<font color="#000000">}</font>
+
+<font color="#00979c">void</font> <font color="#5e6d03">setup</font><font color="#000000">(</font><font color="#000000">)</font> <font color="#000000">{</font>
+ &nbsp;<font color="#434f54">&#47;&#47; LED Screen stuff</font>
+ &nbsp;<b><font color="#d35400">Serial</font></b><font color="#434f54">.</font><font color="#d35400">begin</font><font color="#000000">(</font><font color="#000000">115200</font><font color="#000000">)</font><font color="#000000">;</font>
+ &nbsp;<b><font color="#d35400">Serial</font></b><font color="#434f54">.</font><font color="#d35400">print</font><font color="#000000">(</font><font color="#000000">F</font><font color="#000000">(</font><font color="#005c5f">&#34;Hello! ST77xx TFT Test&#34;</font><font color="#000000">)</font><font color="#000000">)</font><font color="#000000">;</font>
+
+ &nbsp;<font color="#434f54">&#47;&#47; Use this initializer if using a 1.14&#34; 240x135 TFT:</font>
+<font color="#434f54">&#47;&#47; &nbsp;tft.init(135, 240); &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&#47;&#47; Init ST7789 240x135</font>
+
+ &nbsp;<font color="#434f54">&#47;&#47; SPI speed defaults to SPI_DEFAULT_FREQ defined in the library, you can override it here</font>
+ &nbsp;<font color="#434f54">&#47;&#47; Note that speed allowable depends on chip and quality of wiring, if you go too fast, you</font>
+ &nbsp;<font color="#434f54">&#47;&#47; may end up with a black screen some times, or all the time.</font>
+ &nbsp;<font color="#434f54">&#47;&#47;tft.setSPISpeed(40000000);</font>
+
+<font color="#434f54">&#47;&#47; &nbsp;Serial.println(F(&#34;Initialized&#34;));</font>
+
+<font color="#434f54">&#47;&#47; &nbsp;uint16_t time = millis();</font>
+<font color="#434f54">&#47;&#47; &nbsp;tft.fillScreen(ST77XX_BLACK);</font>
+<font color="#434f54">&#47;&#47; &nbsp;time = millis() - time;</font>
+
+ &nbsp;<font color="#434f54">&#47;&#47; WiFi stuff</font>
+ &nbsp;<b><font color="#d35400">WiFi</font></b><font color="#434f54">.</font><font color="#000000">mode</font><font color="#000000">(</font><font color="#000000">WIFI_STA</font><font color="#000000">)</font><font color="#000000">;</font>
+
+ &nbsp;<font color="#5e6d03">if</font> <font color="#000000">(</font><font color="#000000">esp_now_init</font><font color="#000000">(</font><font color="#000000">)</font> <font color="#434f54">!=</font> <font color="#000000">ESP_OK</font><font color="#000000">)</font> <font color="#000000">{</font>
+ &nbsp;&nbsp;&nbsp;<b><font color="#d35400">Serial</font></b><font color="#434f54">.</font><font color="#d35400">println</font><font color="#000000">(</font><font color="#005c5f">&#34;Error initializing ESP-NOW&#34;</font><font color="#000000">)</font><font color="#000000">;</font>
+ &nbsp;&nbsp;&nbsp;<font color="#5e6d03">return</font><font color="#000000">;</font>
+ &nbsp;<font color="#000000">}</font>
+
+ &nbsp;<font color="#434f54">&#47;&#47; Once ESPNow is successfully Init, we will register for Send CB to</font>
+ &nbsp;<font color="#434f54">&#47;&#47; get the status of Trasnmitted packet</font>
+ &nbsp;<font color="#000000">esp_now_register_send_cb</font><font color="#000000">(</font><font color="#000000">OnDataSent</font><font color="#000000">)</font><font color="#000000">;</font>
+
+ &nbsp;<font color="#434f54">&#47;&#47; Register peer</font>
+ &nbsp;<font color="#d35400">memset</font><font color="#000000">(</font><font color="#434f54">&amp;</font><font color="#000000">peerInfo</font><font color="#434f54">,</font> <font color="#000000">0</font><font color="#434f54">,</font> <font color="#00979c">sizeof</font><font color="#000000">(</font><font color="#000000">peerInfo</font><font color="#000000">)</font><font color="#000000">)</font><font color="#000000">;</font>
+ &nbsp;<font color="#d35400">memcpy</font><font color="#000000">(</font><font color="#000000">peerInfo</font><font color="#434f54">.</font><font color="#000000">peer_addr</font><font color="#434f54">,</font> <font color="#000000">broadcastAddress</font><font color="#434f54">,</font> <font color="#000000">6</font><font color="#000000">)</font><font color="#000000">;</font>
+ &nbsp;<font color="#000000">peerInfo</font><font color="#434f54">.</font><font color="#000000">channel</font> <font color="#434f54">=</font> <font color="#000000">0</font><font color="#000000">;</font>
+ &nbsp;<font color="#000000">peerInfo</font><font color="#434f54">.</font><font color="#000000">encrypt</font> <font color="#434f54">=</font> <font color="#00979c">false</font><font color="#000000">;</font>
+
+ &nbsp;<font color="#434f54">&#47;&#47; Add peer</font>
+ &nbsp;<font color="#5e6d03">if</font> <font color="#000000">(</font><font color="#000000">esp_now_add_peer</font><font color="#000000">(</font><font color="#434f54">&amp;</font><font color="#000000">peerInfo</font><font color="#000000">)</font> <font color="#434f54">!=</font> <font color="#000000">ESP_OK</font><font color="#000000">)</font> <font color="#000000">{</font>
+ &nbsp;&nbsp;&nbsp;<b><font color="#d35400">Serial</font></b><font color="#434f54">.</font><font color="#d35400">println</font><font color="#000000">(</font><font color="#005c5f">&#34;Failed to add peer&#34;</font><font color="#000000">)</font><font color="#000000">;</font>
+ &nbsp;&nbsp;&nbsp;<font color="#5e6d03">return</font><font color="#000000">;</font>
+ &nbsp;<font color="#000000">}</font>
+ &nbsp;<font color="#434f54">&#47;&#47; Register for a callback function that will be called when data is received</font>
+ &nbsp;<font color="#000000">esp_now_register_recv_cb</font><font color="#000000">(</font><font color="#000000">OnDataRecv</font><font color="#000000">)</font><font color="#000000">;</font>
+<font color="#000000">}</font>
+
+<font color="#00979c">void</font> <font color="#5e6d03">loop</font><font color="#000000">(</font><font color="#000000">)</font> <font color="#000000">{</font>
+ &nbsp;<b><font color="#d35400">Serial</font></b><font color="#434f54">.</font><font color="#d35400">println</font><font color="#000000">(</font><font color="#000000">incomingTemp</font><font color="#000000">)</font><font color="#000000">;</font> <font color="#434f54">&#47;&#47;Print fact from Nina to serial monitor</font>
+ &nbsp;<font color="#d35400">delay</font><font color="#000000">(</font><font color="#000000">1000</font><font color="#000000">)</font><font color="#000000">;</font>
+ <font color="#95a5a6">&#47;* tft.fillScreen(ST77XX_BLACK);</font>
+<font color="#95a5a6"> &nbsp;tft.setCursor(0, 75);</font>
+<font color="#95a5a6"> &nbsp;tft.setTextWrap(true);</font>
+<font color="#95a5a6"> &nbsp;tft.setRotation(1);</font>
+<font color="#95a5a6"> &nbsp;tft.setTextColor(ST77XX_BLUE);</font>
+<font color="#95a5a6"> &nbsp;tft.setFont(&amp;FreeMonoBoldOblique12pt7b);</font>
+<font color="#95a5a6"> &nbsp;tft.setTextSize(1);</font>
+<font color="#95a5a6"> &nbsp;tft.println(incomingFact);*&#47;</font>
+<font color="#000000">}</font>
+
+<font color="#95a5a6">&#47;*</font>
+<font color="#95a5a6"> &nbsp;&#47;&#47;Format and print fact to LCD display</font>
+<font color="#95a5a6"> &nbsp;void setRotation(uint8_t 3);</font>
+<font color="#95a5a6"> &nbsp;tft.fillScreen(ST77XX_BLACK);</font>
+<font color="#95a5a6"> &nbsp;tft.setCursor(0, 75);</font>
+<font color="#95a5a6"> &nbsp;tft.setTextWrap(true);</font>
+<font color="#95a5a6"> &nbsp;tft.setTextColor(ST77XX_BLUE);</font>
+<font color="#95a5a6"> &nbsp;tft.setFont(&amp;FreeMonoBoldOblique12pt7b);</font>
+<font color="#95a5a6"> &nbsp;tft.setTextSize(2);</font>
+<font color="#95a5a6"> &nbsp;tft.println(incomingFact);</font>
+<font color="#95a5a6">*&#47;</font>
+
+<font color="#95a5a6">&#47;*</font>
+<font color="#95a5a6"> &nbsp;const int buttonPin = 18;</font>
+<font color="#95a5a6"> &nbsp;pinMode(buttonPin, INPUT);</font>
+<font color="#95a5a6"> &nbsp;buttonState = digitalRead(buttonPin);</font>
+<font color="#95a5a6"> &nbsp;if (buttonState == HIGH) {</font>
+<font color="#95a5a6"> &nbsp;&nbsp;&nbsp;send signal to the other ESP32</font>
+<font color="#95a5a6"> &nbsp;} else {</font>
+<font color="#95a5a6"> &nbsp;&nbsp;&nbsp;stop sending signal to other ESP32</font>
+<font color="#95a5a6"> &nbsp;}</font>
+<font color="#95a5a6">*&#47;</font>
+
+</pre>
+</pre>
+</code></pre> 
+
 
 </xmp>
 </body>

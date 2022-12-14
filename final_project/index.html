@@ -24,9 +24,9 @@
 
 # Final Project Documentation: Punchy McPunchface
 
-For my final project, I was particularly interested in [this](https://www.uncommongoods.com/product/mechanical-music-box-set) music box, which runs off of punched cardstock instead of playing a set song, so you can customize the tune. The goal is to create a machine that will automatically punch the holes needed for this music box. Usually, you have to hand-punch every single note, which is both a pain and difficult to do precisely due to human error. I want to create a machine that does this automatically. I have officially named my machine Punchy McPunchface. Here's my final project [video](https://youtu.be/L07CEHaLAlw), and read on for the journey that Punchy was.
+For my final project, I was particularly interested in [this](https://www.uncommongoods.com/product/mechanical-music-box-set) music box, which runs off of punched cardstock instead of playing a set song, so you can customize the tune. The goal is to create a machine that will automatically punch the holes needed for this music box. Usually, you have to hand-punch every single note, which is both a pain and difficult to do precisely due to human error. I want to create a machine that does this automatically. I have officially named my machine Punchy McPunchface. Here's my final project [video](https://youtu.be/L07CEHaLAlw), and read on for the journey that Punchy was. I didn't include all the issues I ran into throughout this project because then this page would go on at least twice as long, but I will say I put my literal blood (accidentally poked myself with a couple wires, oops), sweat, and tears into this project. I am proud of what I was able to accomplish and what I learned throughout the process, even if it wasn't perfect. Thanks to the entire PS70 team for a wonderful semester full of tons of learning!!
 
-I am planning on Punchy having three components:
+I planned for Punchy to have 3 components:
 
 <ul>
   <li>The roller, which will move the paper forward</li>
@@ -38,7 +38,7 @@ You can see these components in this diagram. Unfortunately, my drawing skills a
 
 <img src="./Sketch.jpeg" alt="Sketched diagram" width="350"/>
 
-You can see the initial documentation for my initial progress on the roller and puncher components on my Week 11 [page](./011_week11/index.html), when the assignment was to make an MVP. Essentially, on that page, you can see how I got the roller to a semi-functional place, then struggled with a rack and pinion mechanism and decided to scrap it. Continue reading this page for all my progress to date, and see directly below for a materials list:
+You can see the initial documentation for my initial progress on the roller and puncher components on my Week 11 [page](./011_week11/index.html), when the assignment was to make an MVP. Essentially, on that page, you can see how I got the roller to a semi-functional place, then struggled with a rack and pinion mechanism and decided to scrap it. Continue reading this page for all my progress to date, and see directly below for a materials list. If you want to make this project, just gather all the materials and check out the photos to see where everything goes.
 
 ##Materials List
 <ul>
@@ -48,13 +48,15 @@ You can see the initial documentation for my initial progress on the roller and 
   <li>3 L9110 motor drivers</li>
   <li>Wire, pin-pin wires, and wire strippers</li>
   <li>3 M3x55 screws</li>
-  <li>Lots of 3D printed parts, all STLs linked in this page</li>
+  <li>1 M5x20 screw and 2 M5 nuts</li>
+  <li>Lots of 3D printed parts, which you can get from all STLs linked in this page, or download a zip file with all the STLs + DXF for laser cutting housing <a download href='./AllFiles.zip'>here</a></li>
   <li>1 4.2 mm diameter steel rod</li>
   <li>1 5 mm diameter wooden dowel</li>
   <li>2 ball bearings</li>
   <li>Timing belt</li>
   <li>Pulley for timing belt</li>
   <li>1 limit switch</li>
+  <li>Music box [kit](https://kikkerland.com/collections/music-box/products/make-your-own-music-box-kit), which includes the hole punching bit</li>
 </ul>
 
 ##Roller
@@ -67,11 +69,13 @@ Your browser does not support the video tag.
 
 I knew I also needed a roll in the back to hold the strip of paper, kind of like how a roll of butcher paper or plastic wrap lets you roll the product off of it in an orderly manner. The easiest thing I could think to do was model two concentric cylinders: one in the center and one that was just a millimeter larger and wrapped around the center cylinder. Basically, the idea is that the center cylinder stays stationary while the outer cylinder can freely rotate with the small amount of clearance it has.
 
-After changing some of the other aspects of the design and testing, I concluded that I needed a mechanism to support the paper roller. The roller also needed to be a bit bigger because the dowel holding the wheels was bumping into the motor. I made the roller bigger and created a support bracket, which you can download <a download href='./PaperRollerFinal.stl'>here</a> and see below:
+After changing some of the other aspects of the design and testing, I concluded that I needed a mechanism to support the paper roller. The roller also needed to be a bit bigger because the dowel holding the wheels was bumping into the motor. I made the roller bigger and created a support bracket, which you can download <a download href='./PaperRollerAndSupport.stl'>here</a> and see below:
 
 <iframe src="https://college415.autodesk360.com/shares/public/SH9285eQTcf875d3c539ad4ae096a436e3e7?mode=embed" width="640" height="480" allowfullscreen="true" webkitallowfullscreen="true" mozallowfullscreen="true"  frameborder="0"></iframe>
 
-I also concluded that I would need to change the paper roller to accommodate the slider. I just made it a smaller cylinder that would spin freely on a 4.2 mm steel rod, and you can download it <a download href='./PaperRollerAndSupport.stl'>here</a>.
+I also concluded that I would need to change the paper holder (in the back of the machine, holding the spool of paper) to accommodate the slider. I just made it a smaller cylinder that would spin freely on a 4.2 mm steel rod, and you can download it <a download href='./BackPaperRoller.stl'>here</a>.
+
+When I put everything together, the support bracket was pushing up too much against the wheels, so I wound up ditching it. However, some fine-tuning of the hole for the dowel holding the wheels would fix this issue.
 
 ##Puncher
 I began with a rack and pinion mechanism, with the idea that a stepper motor would spin the pinion, which would move the rack in the z direction. I'd attach something sharp to the rack and hope that it punched holes in the cardstock. I started by drawing a rack and pinion mechanism using [this](https://www.youtube.com/watch?v=khG4Zk5XZrw) excellent tutorial (be sure to reference the comment by Nicholas Halderman, which includes updated parameter information for the current version of Fusion). I then designed a top and bottom plate to contain the rack and pinion. The plates had a track to keep the rack in place: I made this by adding a half-cylinder to each plate and cutting a half-cylinder out of each side of the rack.
@@ -91,18 +95,17 @@ I began by testing the rubber option and found a few different rubber pieces wit
 
 <img src="./Sketch.jpeg" alt="Sketched diagram" width="350"/>
 
-
 I also tried a "drill"-like test by applying force while spinning the hole punch bit. This somewhat worked, but did not punch all the way through. I think I could get this to potentially work if it were done by a machine: obviously, there is a lot of human error when you're just manually spinning a hole punch.
 
 I spoke with Nathan and Ibrahim about options, including having a threaded rod/lead screw situation to press down a long lever arm to provide the force, or maybe switching to a drag knife situation. We decided that what would make the most sense is sticking with the rack and pinion idea, but adding a bunch more gears to try to increase the force that I can end up applying to the paper. I started by testing two existing gearbox mechanisms to see if this will even work before designing my own. I printed [this](https://www.thingiverse.com/thing:4255427) stackable planetary gearbox which you can stack to change the final gear ratio, and [this](https://www.thingiverse.com/thing:4389008) other gearbox.
 
-After printing, the planetary gearbox was the clear winner, especially because I didn't know how much force would be sufficient to punch through the paper, so the stackable gearbox made much more sense. I printed out enough parts to make 4 layers, which would result in a 1:256 gear ratio. This ended up taking forever because of some difficulties removing support material on a critical aspect of the gearbox. See what an assembled unit looks like below:
+After printing, the planetary gearbox was the clear winner, especially because I didn't know how much force would be sufficient to punch through the paper, so the stackable gearbox made much more sense. I printed out enough parts to make 4 layers, which would result in a 1:256 gear ratio. This ended up taking forever because of some difficulties removing support material on a critical aspect of the gearbox. See what the inside of an assembled unit looks like below:
 
-<img src="./GearboxUnit.jpeg" alt="One unit of a stackable gearbox" width="350"/>
+<img src="./GearboxGuts.jpeg" alt="One unit of a stackable gearbox" width="350"/>
 
 I also printed the gear that attached to the stepper motor shaft and had to drill out the hole a bit to get it to fit on. After a couple whacks with a rubber mallet, it was on well:
 
-<img src="./MotorWithGear.jpeg" alt="NEMA-17 motor with gear on shaft" width="350"/>
+<img src="./GearOnNEMA.jpeg" alt="NEMA-17 motor with gear on shaft" width="350"/>
 
 I then turned to making the rack, which I did by measuring the gears that the planetary gearbox used and estimating measurements until I got to a rack that would work. The YouTube tutorial I referenced above for rack-making is entirely parametrized, so that made for easy adjusting. I also added half-circle cutouts on both sides to help the rack stay in place as it moved against the housing. See my initial attempt below.
 
@@ -122,16 +125,49 @@ Finally, I screwed everything down to my stepper motor. This took lots of elbow 
 
 <img src="./Gearbox.jpeg" alt="Stacked gearbox with rack and pinion" width="350"/>
 
-Unfortunately, this 1:64 ratio (there at 3 gear units and one thick spacer on the bottom) is already incredibly slow and still doesn't provide  enough force to punch the super thick paper needed for the music box. It does, however, punch normal paper. This would be something to revisit in the future: perhaps a different gearbox design or a totally different strategy (something with a long lever arm and a lead screw/threaded rod, maybe) would be better.
+I also created a bracket to hold the paper and a layer of rubber, which helps support the paper as the machine punches. See below and download the STl <a download href='./PaperGuideFinal.stl'>here</a>. It wound up being a bit too short so I just stacked some wood on it and put the rubber on top, which you can see below.
 
+<iframe src="https://college415.autodesk360.com/shares/public/SH9285eQTcf875d3c5398c4ba07200e8c2e6?mode=embed" width="640" height="480" allowfullscreen="true" webkitallowfullscreen="true" mozallowfullscreen="true"  frameborder="0"></iframe>
+
+<img src="./Puncher.jpeg" alt="Puncher and rubber and wood layers" width="350"/>
+
+Unfortunately, the 1:64 ratio of my gearbox (there at 3 gear units and one thick spacer on the bottom) is already incredibly slow and still doesn't provide  enough force to punch the super thick paper needed for the music box. It does, however, punch normal paper, as you can see in my final video. This would be something to revisit in the future: perhaps a different gearbox design or a totally different strategy (something with a long lever arm and a lead screw/threaded rod, maybe) would be better.
+
+##Slider
+For the slider, I first thought it would make the most sense to have the slider move the puncher. However, after doing some more thinking, I thought the puncher might be too heavy to move, plus it needed to be pretty stable to punch effectively. I decided the easiest way to do this would be to set up a timing belt pulley system. I gathered a stepper motor with a timing belt attachment, a length of timing belt, and a pulley. I then moved to making a bracket to hold the timing belt to move the paper mount back and forth. I went through a few iterations to get the sizing and channel for the timing belt right. I made one channel to tightly holding the timing belt that was 1.3 mm wide and 7 mm deep, then a channel for the timing belt to pass through that was 2 mm wide and 7 mm deep. I then made it 1 mm wider than the paper mount and added holes that would hold onto a steel rod. Download the STl <a download href='./TimingBeltHolder.stl'>here</a> and see below:
+
+<iframe src="https://college415.autodesk360.com/shares/public/SH9285eQTcf875d3c539092eae6a8d162c64?mode=embed" width="640" height="480" allowfullscreen="true" webkitallowfullscreen="true" mozallowfullscreen="true"  frameborder="0"></iframe>
+
+Then, I needed a bracket to mount the pulley. I recalled that Andrei had done this earlier in the class and downloaded and used his file, which worked great! (find it on this [page](https://andreimitoiu22.github.io/PS70-Blog-Andrei-Mitoiu/Week_10.html) or download <a download href='./PulleyHolder.stl'>here</a>) I also needed a way to get the stepper motor to sit in place, so I printed a holder the same size as the motor (43.2 mm square) for it to sit in. I then planned to glue down this holder to a block of wood, which I would then glue to the outside of Punchy's housing. The block of wood would get the stepper motor to the needed height of where the top of the timing belt bracket was. Download the STL for the holder <a download href='./SliderMotorHolder.stl'>here</a> and view below:
+
+<iframe src="https://college415.autodesk360.com/shares/public/SH9285eQTcf875d3c539b81ab876a0bc5602?mode=embed" width="640" height="480" allowfullscreen="true" webkitallowfullscreen="true" mozallowfullscreen="true"  frameborder="0"></iframe>
+
+Unfortunately, with everything that went wrong with everything else, I didn't have a chance to get the slider totally working: everything was all set except for the mounting of the stepper motor. You can see the attached pulley with timing belt, plus the white timing belt holder, in the final photos below.
 
 ##Housing
-To start, I made an initial model out of cardboard and tried to fit all my elements in. I adjusted the spacing and such a few times until everything fit. I cut holes in the sides for each of the components, including my dowels, the stepper motors, and timing belt. I iterated everything in cardboard, then switched to wood once I knew everything was working.
+To start, I made an initial model out of cardboard and tried to fit all my elements in. I adjusted the spacing and such a few times until everything fit. I cut holes in the sides for each of the components, including my dowels, the stepper motors, and timing belt. I iterated everything in cardboard, then switched to wood once I knew everything was working. The housing posed significant challenges because everything with this device is very precise: the target product of hole punched paper is tiny, with tiny distances between the holes.
 
-I cut a small 20x20mm square to test the kerf, which was about 0.1 mm. Then, I used the DXF for Laser app that PK suggested to adjust my cuts accordingly, setting the kerf as 0.2 mm so I could have a tight press fit. Some hammering later, and the housing was done.
+I cut a small 20x20mm square to test the kerf, which was about 0.1 mm. Then, I used the DXF for Laser app that PK suggested to adjust my cuts accordingly, setting the kerf as 0.2 mm so I could have a tight press fit. Some hammering later, and the housing was done. I went through tons of iterations of the housing to get the fits right, and even then, things weren't perfect. For instance, I had to widen the hole for the dowel that held the wheels of the roller. See some (not even all...) of the iterations below:
+
+<img src="./HousingIterations.jpeg" alt="4 tests of the housing" width="350"/>
+
+I designed the DXF file (download <a download href='./BoxForPunchy.dxf'>here</a>) so that everything is parametrized, so you can change the box dimensions and material thickness and everything (tab locations and heights) will change! This will be useful for future projects, and if you want to use it, you can download the Fusion file <a download href='./BoxForPunchy.f3d'>here</a>.
+
+Here's what everything looked like all mounted!
+
+<img src="./Punchy1.jpeg" alt="Punchy angle 1" width="350"/>
+<img src="./Punchy2.jpeg" alt="Punchy angle 2" width="350"/>
+
 
 ##Code
-Unfortunately, I had so many bugs and issues to work out that I wasn't able to get my code quite right, nor does it fully integrate with the device because I wasn't able to get AccelStepper to function (so the limit switch doesn't work) and the slider isn't quite functional. However, the full framework is in place, with some help from my boyfriend who studies CS, and you can see it below:
+Unfortunately, I had so many bugs and issues to work out that I wasn't able to get my code quite right, nor does it fully integrate with the device because I wasn't able to get AccelStepper to function (so the limit switch doesn't work) and the slider isn't quite functional. However, the full framework is in place, with some help from my boyfriend who studies CS, and you can see it below.
+
+I ran into a bunch of issues with the wiring and code. First, the stepper motors refused to work with the ESP-32 (they just would not run at all for some reason), so I switched back to the Arduino Uno per Suvin's suggestion. I wired up all three stepper motors with three L9110s, following the tutorial we used in class. The wiring looks gross, and if I had more time, I'd make a box to contain everything neatly, but it is quite simple.
+
+<img src="./Wiring.jpeg" alt="Lots of wires" width="350"/>
+
+Then, I tried using the AccelStepper library because it is perfect for homing things, and I wanted to home the slider using a limit switch, which I'd glue onto one side and run the motor such that the slider moved that direction until the housing hit the switch, then set that as the 0 position. However, the AccelStepper library requires you to run the run() functions as frequently as possible, so they have to be in the main loop. In my situation, I couldn't have all the run() functions in that main loop because I needed my motors to start and stop at different times. I had no clue how to handle this, so I instead used Arduino's Stepper library, which is quite simple, but got enough of the job done.
+
 
 <pre><code class="language-arduino">
 <pre>
@@ -240,6 +276,14 @@ Unfortunately, I had so many bugs and issues to work out that I wasn't able to g
 <font color="#000000">}</font>
 </pre>
 </code></pre> 
+
+## Final Thoughts
+Overall, this project was an excellent learning experience. I got Punchy to a point where he could punch a hole effectively in regular paper (sadly not the cardstock that came with the machine) and roll the paper forward one slot. While things were not perfect and the machine wasn't totally functional, it would also be absurdly difficult to get everything working in the time frame we had, especially since I was sick a ton in the last few weeks of the class and because everything is super small, so it has to be tuned super well.
+
+If I had more time, I'd want to investigate different mechanisms to punch holes. Perhaps it would've been better to go with a drag knife or threaded rod and lead screw with the original long lever arm'ed hole punch. Or, Rob suggested just building a mini laser cutter, which while obviously an insane amount of work, could be fun! I'd also want to adjust the housing to make everything more secure (for instance, having the punching mechanism be attached to a beam instead of cantilevered).
+
+I learned so much from this project and I'm grateful to have had this experience!
+
 
 
 ## If you're interested, see my initial ideas below.
